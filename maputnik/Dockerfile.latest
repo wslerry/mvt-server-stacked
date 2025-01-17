@@ -1,0 +1,19 @@
+FROM node:slim AS builder
+
+# Install necessary tools and Node.js
+RUN apt-get update \
+    && apt-get install -y curl git ca-certificates \
+    && apt-get autoremove --yes \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /maputnik
+
+# Clone the Maputnik repository and install dependencies
+RUN git clone https://github.com/maplibre/maputnik.git . \
+    && npm ci \
+    && npx vite build \
+    && npm prune --production
+
+FROM nginx:alpine-slim
+
+COPY --from=builder /maputnik/dist /usr/share/nginx/html/
