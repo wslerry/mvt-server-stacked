@@ -53,7 +53,7 @@ do
 done
 
 echo "DB successfully created, waiting for PostgreSQL to be ready..."
-until pg_isready -d "$POSTGRES_DB" -h tilemill_db -p 5432 -U "$PGUSER"; do
+until pg_isready -d "$POSTGRES_DB" -h db -p 5432 -U "$PGUSER"; do
     echo "Waiting for PostgreSQL to come up..."
     sleep 1
 done
