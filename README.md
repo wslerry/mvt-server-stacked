@@ -1,4 +1,4 @@
-# Mapbox Tile Vector Stacked
+# Mapbox Tile Vector Server Stack
 
 Technology stacks:
 - [maputnik](https://github.com/maplibre/maputnik)
