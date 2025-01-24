@@ -2,6 +2,8 @@ name: mvt-server-stack
 services:
   maputnik1:
     container_name: maputnik-v170
+    env_file:
+      - .env
     build:
       context: ./maputnik
       dockerfile: Dockerfile.v170
@@ -11,12 +13,14 @@ services:
     restart: unless-stopped
     networks:
       - maputnik-network
-    depends_on: 
+    depends_on:
       - db
       - martin
 
   maputnik2:
     container_name: maputnik-latest
+    env_file:
+      - .env
     build:
       context: ./maputnik
       dockerfile: Dockerfile.latest
@@ -26,14 +30,16 @@ services:
     restart: unless-stopped
     networks:
       - maputnik-network
-    depends_on: 
+    depends_on:
       - db
       - martin
 
   db:
     build: ./postgis
     image: lerryws/postgis:tilemill
-    container_name: database
+    container_name: maputnik_db
+    env_file:
+      - .env
     volumes:
       - ./db/data:/var/lib/postgresql/data
     environment:
@@ -45,24 +51,11 @@ services:
     networks:
       - maputnik-network
 
-  martin:
-    image: ghcr.io/maplibre/martin:latest
-    container_name: martin
-    volumes:
-      - ./configs/martin:/opt/
-    environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    depends_on:
-      - db
-    networks:
-      - maputnik-network
-
   pgadmin:
-    container_name: gis_pgadmin
+    container_name: pgadmin_maputnik_db
     image: dpage/pgadmin4:latest
+    env_file:
+      - .env
     environment:
       - TZ=${TZ}
       - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
@@ -71,11 +64,59 @@ services:
     volumes:
       - ./db/pgadmin:/var/lib/pgadmin
     ports:
-      - "8111:80"
+      - "8083:80"
     networks:
       - maputnik-network
-    depends_on: 
+    depends_on:
       - db
+
+  martin:
+    image: ghcr.io/maplibre/martin:latest
+    container_name: martin
+    env_file:
+      - .env
+    volumes:
+      - ./configs/martin:/opt/
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}
+    restart: unless-stopped
+    ports:
+      - "8084:3000"
+    networks:
+      - maputnik-network
+    depends_on:
+      - db
+
+  tileserver-gl:
+    image: maptiler/tileserver-gl:v5.1.2
+    container_name: tileserver-gl
+    volumes:
+      - ./data/mbtiles:/data
+    restart: unless-stopped
+    ports:
+      - "8085:8080"
+    networks:
+      - maputnik-network
+
+  trex:
+    build:
+      context: ./t-rex
+      dockerfile: Dockerfile
+    image: lerryws/t-rex:v0.14.3
+    container_name: trex
+    env_file:
+      - .env
+    ports:
+      - "8086:6767"
+    volumes:
+      - ./configs/t_rex:/opt/config
+      - ./data/t_rex/data:/opt/data
+      - ./data/t_rex/cache:/tmp/mvtcache
+    depends_on:
+      - db
+    restart: unless-stopped
+    networks:
+      - maputnik-network
 
 networks:
   maputnik-network:
