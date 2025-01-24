@@ -13,7 +13,8 @@ Technology stacks:
 ## Usage
 
 ###  1: Prepare Your Environment
-- Clone the Repository: If the setup is in a Git repository, clone it. Otherwise, ensure you have all the necessary files locally.
+- Clone repository intoyour system `git clone git@github.com:wslerry/mvt-server-stacked.git`
+- Ensure you have all the necessary files locally.
 - Edit .env File:
     - Copy `.env-template` to `.env`.
     - Edit `.env` to set environment variables like `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, etc., according to your requirements.

@@ -36,7 +36,7 @@ services:
 
   db:
     build: ./postgis
-    image: lerryws/postgis:tilemill
+    image: lerryws/postgis:latest
     container_name: maputnik_db
     env_file:
       - .env
