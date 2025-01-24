@@ -6,6 +6,7 @@ configs/*
 db/*
 !db/.gitkeep
 data/*
+data/mbtiles
 !data/.gitkeep
 styles
 backup*
