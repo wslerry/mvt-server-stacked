@@ -9,24 +9,7 @@ services:
     env_file:
       - .env
     ports:
-      - "8081:80"
-    restart: unless-stopped
-    networks:
-      - maputnik-network
-    depends_on:
-      - db
-      - martin
-
-  maputnik2:
-    container_name: maputnik-latest
-    build:
-      context: ./maputnik
-      dockerfile: Dockerfile.latest
-    image: lerryws/maputnik:latest
-    env_file:
-      - .env
-    ports:
-      - "8082:80"
+      - "8980:80"
     restart: unless-stopped
     networks:
       - maputnik-network
@@ -65,7 +48,7 @@ services:
     volumes:
       - ./db/pgadmin:/var/lib/pgadmin
     ports:
-      - "8083:80"
+      - "8981:80"
     networks:
       - maputnik-network
     depends_on:
@@ -82,7 +65,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}
     restart: unless-stopped
     ports:
-      - "8084:3000"
+      - "8982:3000"
     networks:
       - maputnik-network
     depends_on:
@@ -95,7 +78,7 @@ services:
       - ./data/mbtiles:/data
     restart: unless-stopped
     ports:
-      - "8085:8080"
+      - "8983:8080"
     networks:
       - maputnik-network
 
@@ -108,13 +91,9 @@ services:
     env_file:
       - .env
     environment:
-      - TZ=${TZ}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}
     ports:
-      - "8086:6767"
+      - "8984:6767"
     volumes:
       - ./configs/t_rex:/opt/config
       - ./data/t_rex/data:/opt/data
