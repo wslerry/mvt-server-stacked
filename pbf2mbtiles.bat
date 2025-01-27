@@ -1,0 +1,1 @@
+docker run --rm -it -v "C:\Containers\mvt-server-stacked\data\mbtiles":/srv tilemaker --input=/srv/malaysia-singapore-brunei-latest.osm.pbf --output=/srv/malaysia-singapore-brunei.mbtiles

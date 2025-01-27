@@ -11,8 +11,8 @@ RUN set -x && apt-get update && \
     mkdir -p /opt/osm_data && \
     ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime && echo ${TZ} > /etc/timezone
 
-RUN set -x && wget -O /opt/osm_data/malaysia-singapore-brunei-latest.osm.pbf \ 
-    "https://download.geofabrik.de/asia/malaysia-singapore-brunei-latest.osm.pbf"
+# RUN set -x && wget -O /opt/osm_data/malaysia-singapore-brunei-latest.osm.pbf \ 
+#     "https://download.geofabrik.de/asia/malaysia-singapore-brunei-latest.osm.pbf"
 
 COPY ./initdb-postgis.sh /docker-entrypoint-initdb.d/postgis.sh
 COPY ./openstreetmap-carto.style /openstreetmap-carto.style
