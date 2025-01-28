@@ -10,11 +10,11 @@ RUN set -eux; \
     mkdir -p /opt/data /opt/config;
 
 WORKDIR /opt/apps
-COPY entrypoint.sh entrypoint.sh
+COPY entrypoint.sh /opt/apps/entrypoint.sh
 RUN sed -i "s/\r$//" entrypoint.sh && chmod +x entrypoint.sh
 
 EXPOSE 6767
 
 ENTRYPOINT [ "tini", "--" ]
 
-CMD [ "bash", "/opt/apps/entrypoint.sh" ]
+CMD [ "/opt/apps/entrypoint.sh" ]

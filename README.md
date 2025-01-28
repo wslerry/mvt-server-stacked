@@ -1,4 +1,14 @@
-# Mapbox Tile Vector Server Stack
+# Mapbox Tile Vector Server Stacks
+
+A learning process of MVT server stacks
+
+TODO:
+- add https://www.bbox.earth/
+- add tilemaker (pbf to mbtiles)
+- case study https://cyberjapandata.gsi.go.jp/ tech stack
+- read https://dev.to/mierune/building-a-geospatial-server-with-bbox-server-4e5b
+- study https://github.com/shiwaku/FOSS4G-2024-Japan-MapLibre-HandsOn?tab=readme-ov-file
+- case study https://busrouter.sg/#/
 
 Technology stacks:
 - [maputnik](https://github.com/maplibre/maputnik)

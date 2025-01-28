@@ -115,7 +115,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}
     ports:
-      - "8086:6767"
+      - "6767:6767"
     volumes:
       - ./configs/t_rex:/opt/config
       - ./data/t_rex/data:/opt/data
