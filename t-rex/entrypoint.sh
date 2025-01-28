@@ -9,7 +9,8 @@ if [ ! -f /opt/config/pg_config.toml ]; then
     echo "Configuration file not found. Creating configuration file..."
     t_rex genconfig --dbconn ${DATABASE_URL} > /opt/config/pg_config.toml
 else
-    echo "Configuration file already exists. Skipping creation."
+    echo "Configuration file already exists and will be recreate."
+    t_rex genconfig --dbconn ${DATABASE_URL} > /opt/config/pg_config.toml
 fi
 
 echo "Start serving t_rex"
