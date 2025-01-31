@@ -35,6 +35,7 @@ services:
     depends_on:
       - db
       - martin
+      - tileserver-gl
 
   maputnik2:
     container_name: maputnik-latest
@@ -52,6 +53,7 @@ services:
     depends_on:
       - db
       - martin
+      - tileserver-gl
 
   pgadmin:
     container_name: pgadmin_maputnik_db

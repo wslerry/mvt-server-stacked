@@ -1,0 +1,14 @@
+{
+  "extracts": [
+    {
+      "output": "borneo-id.osm.pbf",
+      "output_format": "pbf",
+      "description": "Clipping Borneo Island OSM data - Indonesia part",
+      "polygon": {
+        "file_name": "clip.poly",
+        "file_type": "poly"
+      }
+    }
+  ],
+  "directory": "/data/output"
+}

@@ -11,6 +11,9 @@ data/mbtiles
 styles
 backup*
 
+tilemaker/pbf/*.*
+!tilemaker/pbf/.gitkeep
+
 index.html
 
 build.yml

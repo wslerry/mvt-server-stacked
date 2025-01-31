@@ -1,0 +1,27 @@
+services:
+  osmium:
+    build: ./osmium
+    image: lerryws/osmium:latest
+    container_name: osmium
+    volumes:
+      - ./data/pbf:/data/input
+      - ./tilemaker/pbf:/data/output
+    command: ["./entrypoint.sh", "extract"]
+
+  tilemaker:
+    image: ghcr.io/systemed/tilemaker:master
+    container_name: tilemaker
+    volumes:
+      - ./tilemaker/resources:/data/resources
+      - ./tilemaker/pbf:/data/pbf
+      - ./tilemaker/borneo/coastline:/data/coastline
+      - ./tilemaker/borneo/landcover:/data/landcover
+      - ./data/mbtiles:/data/output
+    working_dir: /data
+    command: >
+      /data/pbf/borneo-latest.osm.pbf
+      --output /data/output/borneo-latest.mbtiles
+      --store /data/store
+      --bbox 108.116167,-5.4059035,119.6681056,7.6331971
+      --process resources/process-borneo-openmaptiles.lua
+      --config resources/config-borneo-openmaptiles.json
