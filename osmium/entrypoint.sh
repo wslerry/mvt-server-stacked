@@ -55,17 +55,17 @@ extract() {
 
     echo Extracting Malaysia Borneo data...
 
-    osmium extract -v -c $config_ms $mys_osm
+    osmium extract -v -c $config_ms $mys_osm --overwrite
 
     echo Extracting Indonesia Borneo data...
 
-    osmium extract -v -c $config_id $ind_osm
+    osmium extract -v -c $config_id $ind_osm --overwrite
 
     echo Merge Indonesia - Malaysia ...
     
     osmium merge $out_clip/borneo-ms.osm.pbf $out_clip/borneo-id.osm.pbf -o $out_clip/borneo-latest.osm.pbf --overwrite
 
-    # rm -rf $out_clip/borneo-ms.osm.pbf /$out_clip/borneo-id.osm.pbf
+    rm -rf $out_clip/borneo-ms.osm.pbf /$out_clip/borneo-id.osm.pbf
 }
 
 
