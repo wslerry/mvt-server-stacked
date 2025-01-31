@@ -9,7 +9,7 @@ COPY entrypoint.sh entrypoint.sh
 
 RUN set -eux; \
     apt-get update; \
-    apt-get install -y --no-install-recommends osmium-tool wget tini; \
+    apt-get install -y --no-install-recommends osmium-tool ca-certificates wget curl tini; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*; \
     mkdir -p /data/input /data/output; \

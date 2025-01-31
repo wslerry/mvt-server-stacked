@@ -10,8 +10,9 @@ osm_checker() {
 
     if [ ! -f "$mys_osm" ]; then
         echo "$mys_osm not found, downloading..."
-        curl -L https://download.geofabrik.de/asia/malaysia-singapore-brunei-latest.osm.pbf \ 
-            --output /data/input/malaysia-singapore-brunei-latest.osm.pbf
+        # curl -L https://download.geofabrik.de/asia/malaysia-singapore-brunei-latest.osm.pbf \ 
+        #     --output /data/input/malaysia-singapore-brunei-latest.osm.pbf
+        wget -O /data/input/malaysia-singapore-brunei-latest.osm.pbf https://download.geofabrik.de/asia/malaysia-singapore-brunei-latest.osm.pbf
         if [ $? -ne 0 ]; then
             echo "Failed to download $mys_osm"
             exit 1
@@ -22,8 +23,9 @@ osm_checker() {
 
     if [ ! -f "$ind_osm" ]; then
         echo "$ind_osm not found, downloading..."
-        curl -L https://download.geofabrik.de/asia/indonesia-latest.osm.pbf \ 
-            --output /data/input/indonesia-latest.osm.pbf
+        # curl -L https://download.geofabrik.de/asia/indonesia-latest.osm.pbf \ 
+        #     --output /data/input/indonesia-latest.osm.pbf
+        wget -O /data/input/indonesia-latest.osm.pbf https://download.geofabrik.de/asia/indonesia-latest.osm.pbf
         if [ $? -ne 0 ]; then
             echo "Failed to download $ind_osm"
             exit 1
