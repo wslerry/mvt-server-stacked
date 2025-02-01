@@ -8,13 +8,13 @@
 -- Alter these lines to control which languages are written for place/streetnames
 --
 -- Preferred language can be (for example) "ms" for Malay, "id" for Indonesia, or nil to use OSM's name tag:
-preferred_language = "ms"
+preferred_language = nil
 -- This is written into the following vector tile attribute (usually "name:latin"):
-preferred_language_attribute = "name:latin"
+preferred_language_attribute = "name"
 -- If OSM's name tag differs, then write it into this attribute (usually "name_int"):
 default_language_attribute = "name_int"
 -- Also write these languages if they differ - for example, { "de", "fr" }
-additional_languages = { "en", "id" }
+additional_languages = { "en", "ms", "id" }
 --------
 
 -- Enter/exit Tilemaker

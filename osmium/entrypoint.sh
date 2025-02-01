@@ -1,13 +1,10 @@
 #!/bin/bash
 
+# make sure datasets are malaysia-singapore-brunei-latest.osm.pbf and indonesia-latest.osm.pbf
 mys_osm="/data/input/malaysia-singapore-brunei-latest.osm.pbf"
 ind_osm="/data/input/indonesia-latest.osm.pbf"
 
 osm_checker() {
-    # make sure datasets are malaysia-singapore-brunei-latest.osm.pbf and indonesia-latest.osm.pbf
-    # local mys_osm="/data/input/malaysia-singapore-brunei-latest.osm.pbf"
-    # local ind_osm="/data/input/indonesia-latest.osm.pbf"
-
     if [ ! -f "$mys_osm" ]; then
         echo "$mys_osm not found, downloading..."
         # curl -L https://download.geofabrik.de/asia/malaysia-singapore-brunei-latest.osm.pbf \ 

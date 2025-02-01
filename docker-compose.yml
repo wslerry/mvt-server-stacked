@@ -95,7 +95,7 @@ services:
     image: maptiler/tileserver-gl:v5.1.2
     container_name: tileserver-gl
     volumes:
-      - ./data/mbtiles:/data
+      - ./data/mbtiles/borneo:/data
     restart: unless-stopped
     ports:
       - "8085:8080"
