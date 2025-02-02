@@ -12,6 +12,7 @@ data/pbf
 data/t_rex
 data/mbtiles/borneo/*.mbtiles
 data/mbtiles/borneo/*.pmtiles
+data/mbtiles/*.*
 !data/mbtiles/borneo
 !data/mbtiles/borneo/fonts
 !data/mbtiles/borneo/styles
