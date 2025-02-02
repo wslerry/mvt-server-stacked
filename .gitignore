@@ -12,10 +12,12 @@ data/pbf
 data/t_rex
 data/mbtiles/borneo/*.mbtiles
 data/mbtiles/borneo/*.pmtiles
+!data/mbtiles/borneo
 !data/mbtiles/borneo/fonts
 !data/mbtiles/borneo/styles
 !data/mbtiles/borneo/config.json
 !data/.gitkeep
+data/mbtiles/zurich
 ./styles
 backup*
 
