@@ -5,10 +5,18 @@ configs/*
 !configs/.gitkeep
 db/*
 !db/.gitkeep
-data/*
-data/mbtiles
+
+data/osm
+data/osm_bright
+data/pbf
+data/t_rex
+data/mbtiles/borneo/*.mbtiles
+data/mbtiles/borneo/*.pmtiles
+!data/mbtiles/borneo/fonts
+!data/mbtiles/borneo/styles
+!data/mbtiles/borneo/config.json
 !data/.gitkeep
-styles
+./styles
 backup*
 
 tilemaker/pbf/*.*

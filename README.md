@@ -9,6 +9,7 @@ TODO:
 - read https://dev.to/mierune/building-a-geospatial-server-with-bbox-server-4e5b
 - study https://github.com/shiwaku/FOSS4G-2024-Japan-MapLibre-HandsOn?tab=readme-ov-file
 - case study https://busrouter.sg/#/
+- study https://openfreemap.org/
 
 Technology stacks:
 - [maputnik](https://github.com/maplibre/maputnik)

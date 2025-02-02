@@ -1,0 +1,50 @@
+{
+  "options": {
+    "paths": {
+      "fonts": "fonts",
+      "styles": "styles"
+    }
+  },
+  "styles": {
+    "bright": {
+      "style": "osm-bright/style.json",
+      "tilejson": {
+        "type": "overlay",
+        "bounds": [103.91744, -1.15250, 117.27700, 5.60175]
+      }
+    },
+    "positron": {
+      "style": "positron/style.json",
+      "tilejson": {
+        "type": "overlay",
+        "bounds": [103.91744, -1.15250, 117.27700, 5.60175]
+      }
+    },
+    "liberty": {
+      "style": "liberty/style.json",
+      "tilejson": {
+        "type": "overlay",
+        "bounds": [103.91744, -1.15250, 117.27700, 5.60175]
+      }
+    },
+    "fiord": {
+      "style": "fiord/style.json",
+      "tilejson": {
+        "type": "overlay",
+        "bounds": [103.91744, -1.15250, 117.27700, 5.60175]
+      }
+    },
+    "klokantech-basic": {
+      "style": "klokantech-basic/style.json",
+      "tilejson": {
+        "type": "overlay",
+        "bounds": [103.91744, -1.15250, 117.27700, 5.60175]
+      }
+    }
+  },
+  "data": {
+    "openmaptiles": {
+      "pmtiles": "borneo-latest.pmtiles"
+    }
+  }
+}

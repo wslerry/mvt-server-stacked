@@ -32,18 +32,6 @@ osm_checker() {
     fi
 }
 
-folder_checker() {
-    local in_dir="/data/input/"
-    # local out_dir="/data/output/"
-    if [ -z "$(ls -A "$in_dir")" ]; then
-        osm_checker
-    fi
-    # if [ ! -z "$(ls -A "$out_dir")" ]; then
-    #     rm -rf $out_dir/*.*
-    # fi
-}
-
-
 extract() {
     local config_ms="/opt/osmium/extraction/borneo_ms.json"
     local config_id="/opt/osmium/extraction/borneo_id.json"
@@ -68,14 +56,14 @@ extract() {
 
 # Check the first argument to determine which action to take
 if [ $# -eq 0 ]; then
-    folder_checker
+    osm_checker
     extract
 
     exit 1
 else
     case "$1" in
         "extract")
-            folder_checker
+            osm_checker
             extract
 
             exit 1
