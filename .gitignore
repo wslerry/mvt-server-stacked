@@ -20,6 +20,7 @@ data/mbtiles/*.*
 !data/.gitkeep
 data/mbtiles/zurich
 ./styles
+./styles/*
 backup*
 
 tilemaker/pbf/*.*
