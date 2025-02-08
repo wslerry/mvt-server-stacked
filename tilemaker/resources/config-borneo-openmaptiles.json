@@ -37,16 +37,16 @@
 		"basezoom": 14,
 		"include_ids": false,
 		"combine_below": 14,
-		"name": "Tilemaker to OpenMapTiles schema",
+		"name": "Borneo Island",
 		"version": "3.0",
-		"description": "Tile config based on OpenMapTiles schema",
+		"description": "Borneo Island",
 		"compress": "gzip",
 		"filemetadata": {
 			"tilejson": "2.0.0", 
 			"scheme": "xyz", 
 			"type": "baselayer", 
-			"format": "png", 
-            "tiles": ["http://localhost:8085/styles/test-style/512/{z}/{x}/{y}.png"]
+			"format": "pbf", 
+            "tiles": ["http://localhost:8085/styles/test-style/512/{z}/{x}/{y}.pbf"]
 		}
 	}
 }

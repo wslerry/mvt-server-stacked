@@ -10,6 +10,7 @@ data/osm
 data/osm_bright
 data/pbf
 data/t_rex
+data/trex/*
 data/mbtiles/borneo/*.mbtiles
 data/mbtiles/borneo/*.pmtiles
 data/mbtiles/*.*
