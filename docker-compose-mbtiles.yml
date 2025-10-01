@@ -17,6 +17,7 @@ services:
       - ./tilemaker/borneo/coastline:/data/coastline
       - ./tilemaker/borneo/landcover:/data/landcover
       - ./data/mbtiles/borneo:/data/output
+      - ./datastore:/data/store
     working_dir: /data
     command: >
       /data/pbf/borneo-latest.osm.pbf

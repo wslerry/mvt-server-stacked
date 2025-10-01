@@ -8,13 +8,13 @@ services:
       - .env
     volumes:
       - ./db/data:/var/lib/postgresql/data
-      - ./data/osm:/opt/osm_data
+      - ./tilemaker/pbf:/opt/osm_data
     environment:
       - TZ=${TZ}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - OSM_FILENAME=malaysia-singapore-brunei-latest.osm.pbf
+      - OSM_FILENAME=borneo-latest.osm.pbf
     restart: unless-stopped
     networks:
       - maputnik-network
@@ -80,7 +80,10 @@ services:
     env_file:
       - .env
     volumes:
-      - ./configs/martin:/opt/
+      - ./configs/martin:/opt/martin/config
+      - ./data/mbtiles:/opt/martin/data
+      # - ./pmtiles:/files
+    command: ["/opt/martin/data", "--webui", "enable-for-all", "--save-config", "/opt/martin/config/martin.config.yaml"]
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}
     restart: unless-stopped

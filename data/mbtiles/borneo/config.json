@@ -6,6 +6,13 @@
     }
   },
   "styles": {
+    "borneosm": {
+      "style": "borneosm/style.json",
+      "tilejson": {
+        "type": "overlay",
+        "bounds": [103.91744, -1.15250, 117.27700, 5.60175]
+      }
+    },
     "bright": {
       "style": "osm-bright/style.json",
       "tilejson": {
