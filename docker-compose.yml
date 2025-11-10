@@ -1,109 +1,178 @@
 name: mvt-server-stack
+
 services:
+  # ==================== OSM DATA PIPELINE ====================
+  osmium:
+    build:
+      context: ./osmium
+      dockerfile: Dockerfile
+    image: lerryws/osmium:latest
+    container_name: osmium
+    user: "1000:1000"
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=100m
+    volumes:
+      - ./data/pbf:/data/input:ro
+      - ./tilemaker/pbf:/data/output
+    command: ["./entrypoint.sh", "extract"]
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETUID
+      - SETGID
+      - CHOWN
+    healthcheck:
+      test: ["CMD", "osmium", "--version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: on-failure:5
+    networks:
+      - internal
+
+  tilemaker:
+    image: ghcr.io/systemed/tilemaker:master
+    container_name: tilemaker
+    user: "${UID:-1000}:${GID:-1000}"
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=500m
+    volumes:
+      - ./tilemaker/resources:/data/resources:ro
+      - ./tilemaker/pbf:/data/pbf:ro
+      - ./tilemaker/borneo/coastline:/data/coastline:ro
+      - ./tilemaker/borneo/landcover:/data/landcover:ro
+      - ./data/mbtiles/borneo:/data/output
+      - ./datastore:/data/store
+    working_dir: /data
+    command: >
+      /data/pbf/borneo-latest.osm.pbf
+      --output /data/output/borneo-latest.pmtiles
+      --store /data/store
+      --bbox 108.116167,-5.4059035,119.6681056,7.6331971
+      --process resources/process-borneo-openmaptiles.lua
+      --config resources/config-borneo-openmaptiles.json
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      test: ["CMD", "tilemaker", "--version"]
+      interval: 60s
+      timeout: 20s
+      retries: 3
+    restart: on-failure:5
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+    networks:
+      - internal
+
+  # ==================== DATABASE ====================
   db:
-    build: ./postgis
+    build:
+      context: ./postgis
+      dockerfile: Dockerfile
     image: lerryws/postgis:latest
     container_name: maputnik_db
-    env_file:
-      - .env
+    user: "${UID:-999}:${GID:-999}" # postgres user in alpine
+    read_only: false
+    tmpfs:
+      - /tmp:noexec,nosuid,size=100m
+      - /var/run/postgresql:noexec,nosuid,size=10m
     volumes:
-      - ./db/data:/var/lib/postgresql/data
-      - ./tilemaker/pbf:/opt/osm_data
+      - db_data:/var/lib/postgresql/data
+      - ./tilemaker/pbf:/opt/osm_data:ro
     environment:
       - TZ=${TZ}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - OSM_FILENAME=borneo-latest.osm.pbf
+    healthcheck:
+      test:
+        ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     networks:
-      - maputnik-network
+      - internal
 
-  maputnik1:
-    container_name: maputnik-v170
-    build:
-      context: ./maputnik
-      dockerfile: Dockerfile.v170
-    image: lerryws/maputnik:1.7.0
-    env_file:
-      - .env
-    ports:
-      - "8081:80"
-    restart: unless-stopped
-    networks:
-      - maputnik-network
-    depends_on:
-      - db
-      - martin
-      - tileserver-gl
-
-  maputnik2:
-    container_name: maputnik-latest
-    build:
-      context: ./maputnik
-      dockerfile: Dockerfile.latest
-    image: lerryws/maputnik:latest
-    env_file:
-      - .env
-    ports:
-      - "8082:80"
-    restart: unless-stopped
-    networks:
-      - maputnik-network
-    depends_on:
-      - db
-      - martin
-      - tileserver-gl
-
-  pgadmin:
-    container_name: pgadmin_maputnik_db
-    image: dpage/pgadmin4:latest
-    env_file:
-      - .env
-    environment:
-      - TZ=${TZ}
-      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
-      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
-    restart: unless-stopped
-    volumes:
-      - ./db/pgadmin:/var/lib/pgadmin
-    ports:
-      - "8083:80"
-    networks:
-      - maputnik-network
-    depends_on:
-      - db
-
+  # ==================== TILE SERVERS ====================
   martin:
     image: ghcr.io/maplibre/martin:latest
     container_name: martin
+    user: "${UID:-1000}:${GID:-1000}"
     env_file:
       - .env
     volumes:
-      - ./configs/martin:/opt/martin/config
-      - ./data/mbtiles:/opt/martin/data
-      # - ./pmtiles:/files
-    command: ["/opt/martin/data", "--webui", "enable-for-all", "--save-config", "/opt/martin/config/martin.config.yaml"]
+      - ./configs/martin:/opt/martin/config:ro
+      - ./data/mbtiles:/opt/martin/data:ro
+    command:
+      [
+        "/opt/martin/data",
+        "--webui",
+        "enable-for-all",
+        "--save-config",
+        "/opt/martin/config/martin.config.yaml",
+      ]
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}
-    restart: unless-stopped
     ports:
       - "8084:3000"
-    networks:
-      - maputnik-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    networks:
+      - internal
 
   tileserver-gl:
     image: maptiler/tileserver-gl:v5.1.2
     container_name: tileserver-gl
+    user: "${UID:-1000}:${GID:-1000}"
     volumes:
-      - ./data/mbtiles/borneo:/data
-    restart: unless-stopped
+      - ./data/mbtiles/borneo:/data:ro
     ports:
       - "8085:8080"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8080",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     networks:
-      - maputnik-network
+      - internal
 
   trex:
     build:
@@ -111,26 +180,116 @@ services:
       dockerfile: Dockerfile
     image: lerryws/t-rex:v0.14.3
     container_name: trex
+    user: "${UID:-1000}:${GID:-1000}"
     env_file:
       - .env
     environment:
       - TZ=${TZ}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}
     ports:
       - "6767:6767"
     volumes:
-      - ./configs/t_rex:/opt/config
-      - ./data/t_rex/data:/opt/data
-      - ./data/t_rex/cache:/tmp/mvtcache
+      - ./configs/t_rex:/opt/config:ro
+      - ./data/t_rex/data:/opt/data:ro
+      - trex_cache:/tmp/mvtcache
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6767/index.json"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     networks:
-      - maputnik-network
+      - internal
+
+  # ==================== MAPUTNIK EDITOR (optional, expose only if needed) ====================
+  maputnik-v170:
+    build:
+      context: ./maputnik
+      dockerfile: Dockerfile.v170
+    image: lerryws/maputnik:1.7.0
+    container_name: maputnik-v170
+    user: "${UID:-101}:${GID:-101}" # nginx user in alpine
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=10m
+    ports:
+      - "8081:80"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - internal
+    depends_on:
+      - martin
+      - tileserver-gl
+
+  maputnik-latest:
+    build:
+      context: ./maputnik
+      dockerfile: Dockerfile.latest
+      args:
+        MAPUTNIK_TAG: main
+    image: lerryws/maputnik:secure-latest
+    container_name: maputnik-latest
+    user: "${UID:-101}:${GID:-101}"
+    ports:
+      - "8082:80"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    cap_drop:
+      - ALL
+    networks:
+      - internal
+
+  # ==================== PGADMIN (optional, remove in prod if not needed) ====================
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin_maputnik_db
+    user: "${UID:-1000}:${GID:-1000}"
+    env_file:
+      - .env
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - "8083:80"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - internal
+
+# ==================== VOLUMES & NETWORKS ====================
+volumes:
+  db_data:
+  trex_cache:
+  pgadmin_data:
 
 networks:
-  maputnik-network:
+  internal:
     driver: bridge
+    internal: false # change to `true` if you want full isolation (no external access)
+    attachable: true

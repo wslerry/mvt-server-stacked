@@ -1,23 +1,57 @@
+# ==================== BUILDER (Debian + Node 10) ====================
 FROM debian:bullseye-slim AS builder
 
-# Install necessary tools and Node.js
-RUN apt-get update \
-    && apt-get install -y curl git \
-    && curl -L https://raw.githubusercontent.com/tj/n/master/bin/n -o /usr/local/bin/n \
-    && chmod +x /usr/local/bin/n \
-    && n 10.0 \
-    && apt-get autoremove --yes \
-    && rm -rf /var/lib/apt/lists/*
+# Prevent interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install build essentials + Python 2.7 (required by old node-sass)
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        git \
+        python2 \
+        make \
+        g++ \
+        build-essential; \
+    \
+    # Install Node.js 10 via n (official way for old versions)
+    curl -L https://raw.githubusercontent.com/tj/n/master/bin/n -o /usr/local/bin/n; \
+    chmod +x /usr/local/bin/n; \
+    n 10.24.1; \
+    \
+    # Clean up
+    apt-get clean; \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /maputnik
 
-# Clone the Maputnik repository and install dependencies
-RUN git clone https://github.com/maplibre/maputnik.git . \
-    && git checkout v1.7.0 \
-    && npm install -d \
-    && npm run build \
-    && npm prune --production
+# Clone v1.7.0 and build (no --legacy-peer-deps needed)
+RUN git clone --depth 1 --branch v1.7.0 https://github.com/maplibre/maputnik.git . && \
+    npm install && \
+    npm run build && \
+    npm prune --production
 
+# ==================== FINAL IMAGE (nginx:alpine-slim) ====================
 FROM nginx:alpine-slim
 
-COPY --from=builder /maputnik/build/build /usr/share/nginx/html
+# Add curl for healthcheck
+RUN apk add --no-cache curl
+
+# Copy built assets
+COPY --from=builder --chown=nginx:nginx /maputnik/build/build /usr/share/nginx/html
+
+# Run as non-root nginx user
+USER nginx
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost/ || exit 1
+
+EXPOSE 80
+
+LABEL org.opencontainers.image.title="Maputnik v1.7.0 (Node 10, secure)"
+LABEL org.opencontainers.image.version="1.7.0"
+
+STOPSIGNAL SIGTERM
