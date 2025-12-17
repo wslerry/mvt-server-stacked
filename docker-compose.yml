@@ -13,7 +13,7 @@ services:
     tmpfs:
       - /tmp:noexec,nosuid,size=100m
     volumes:
-      - ./data/pbf:/data/input:ro
+      - ./data/pbf:/data/input:rw
       - ./tilemaker/pbf:/data/output
     command: ["./entrypoint.sh", "extract"]
     security_opt:
@@ -24,14 +24,7 @@ services:
       - SETUID
       - SETGID
       - CHOWN
-    healthcheck:
-      test: ["CMD", "osmium", "--version"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
     restart: on-failure:5
-    networks:
-      - internal
 
   tilemaker:
     image: ghcr.io/systemed/tilemaker:master
@@ -45,32 +38,25 @@ services:
       - ./tilemaker/pbf:/data/pbf:ro
       - ./tilemaker/borneo/coastline:/data/coastline:ro
       - ./tilemaker/borneo/landcover:/data/landcover:ro
-      - ./data/mbtiles/borneo:/data/output
-      - ./datastore:/data/store
+      - ./data/mbtiles/borneo:/data/output:rw
+      - ./datastore:/data/store:rw
     working_dir: /data
     command: >
       /data/pbf/borneo-latest.osm.pbf
       --output /data/output/borneo-latest.pmtiles
       --store /data/store
       --bbox 108.116167,-5.4059035,119.6681056,7.6331971
-      --process resources/process-borneo-openmaptiles.lua
+      --process resources/deepseek.lua
       --config resources/config-borneo-openmaptiles.json
     security_opt:
       - no-new-privileges:true
     cap_drop:
       - ALL
-    healthcheck:
-      test: ["CMD", "tilemaker", "--version"]
-      interval: 60s
-      timeout: 20s
-      retries: 3
     restart: on-failure:5
     deploy:
       resources:
         limits:
           memory: 4G
-    networks:
-      - internal
 
   # ==================== DATABASE ====================
   db:
@@ -238,25 +224,36 @@ services:
       - martin
       - tileserver-gl
 
-  maputnik-latest:
+  maputnik:
     build:
       context: ./maputnik
       dockerfile: Dockerfile.latest
       args:
         MAPUTNIK_TAG: main
-    image: lerryws/maputnik:secure-latest
-    container_name: maputnik-latest
-    user: "${UID:-101}:${GID:-101}"
+    image: lerryws/maputnik:latest
+    container_name: maputnik
+    user: "${UID:-1001}:${GID:-1001}" # maputnik user in alpine
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=10m
     ports:
-      - "8082:80"
+      - "8082:8000"
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
-    read_only: true
     cap_drop:
       - ALL
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     networks:
       - internal
+    depends_on:
+      - martin
+      - tileserver-gl
 
   # ==================== PGADMIN (optional, remove in prod if not needed) ====================
   pgadmin:
