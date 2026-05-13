@@ -48,9 +48,11 @@ extract() {
 
     echo Merge Indonesia - Malaysia ...
     
-    osmium merge $out_clip/borneo-ms.osm.pbf $out_clip/borneo-id.osm.pbf -o $out_clip/borneo-latest.osm.pbf --overwrite
+    osmium merge -v $out_clip/borneo-ms.osm.pbf $out_clip/borneo-id.osm.pbf -o $out_clip/borneo-latest.osm.pbf --overwrite
 
-    rm -rf $out_clip/borneo-ms.osm.pbf /$out_clip/borneo-id.osm.pbf
+    rm -rf $out_clip/borneo-ms.osm.pbf $out_clip/borneo-id.osm.pbf
+
+    echo "Done."
 }
 
 
@@ -59,19 +61,19 @@ if [ $# -eq 0 ]; then
     osm_checker
     extract
 
-    exit 1
+    exit 0
 else
     case "$1" in
         "extract")
             osm_checker
             extract
 
-            exit 1
+            exit 0
             ;;
         "download")
             osm_checker
 
-            exit 1
+            exit 0
             ;;
         *)
             echo "Usage: $0 {extract|download}" >&2
