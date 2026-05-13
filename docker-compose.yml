@@ -1,7 +1,7 @@
 name: mvt-server-stack
 
 services:
-  # ==================== OSM DATA PIPELINE ====================
+  # OSM DATA PIPELINE
   osmium:
     build:
       context: ./osmium
@@ -72,7 +72,7 @@ services:
     networks:
       - internal
 
-  # ==================== DATABASE ====================
+  # DATABASE
   db:
     build:
       context: ./postgis
@@ -107,7 +107,7 @@ services:
     networks:
       - internal
 
-  # ==================== TILE SERVERS ====================
+  # TILE SERVERS
   martin:
     image: ghcr.io/maplibre/martin:latest
     container_name: martin
@@ -208,7 +208,7 @@ services:
     networks:
       - internal
 
-  # ==================== MAPUTNIK EDITOR (optional, expose only if needed) ====================
+  # MAPUTNIK EDITOR (optional, expose only if needed)
   maputnik-v170:
     build:
       context: ./maputnik
@@ -258,7 +258,7 @@ services:
     networks:
       - internal
 
-  # ==================== PGADMIN (optional, remove in prod if not needed) ====================
+  # PGADMIN (optional, remove in prod if not needed)
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: pgadmin_maputnik_db
@@ -282,7 +282,7 @@ services:
     networks:
       - internal
 
-# ==================== VOLUMES & NETWORKS ====================
+# VOLUMES & NETWORKS
 volumes:
   db_data:
   trex_cache:
