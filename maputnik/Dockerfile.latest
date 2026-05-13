@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ==================== BUILDER ====================
 FROM node:slim AS builder
 WORKDIR /app
@@ -19,3 +20,40 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 USER nginx
 HEALTHCHECK CMD curl -f http://localhost/ || exit 1
 EXPOSE 80
+=======
+# ==================== BUILDER ====================
+FROM golang:1.23-alpine AS builder
+WORKDIR /maputnik
+
+# Install necessary build dependencies
+RUN apk add --no-cache nodejs npm make git gcc g++ libc-dev
+
+# Clone maputnik repository
+ARG MAPUTNIK_TAG=main
+RUN git clone --depth 1 --branch ${MAPUTNIK_TAG} https://github.com/maplibre/maputnik.git . \
+    && npm ci \
+    && CGO_ENABLED=1 GOOS=linux npm run build-linux
+
+# ==================== FINAL IMAGE ====================
+FROM alpine:latest
+WORKDIR /app
+
+# Install runtime dependencies
+RUN apk add --no-cache ca-certificates curl
+
+# Copy the built binary
+COPY --from=builder /maputnik/desktop/bin/linux/maputnik ./maputnik
+
+# Create a non-root user
+RUN addgroup -g 1001 maputnik \
+    && adduser -D -u 1001 -G maputnik maputnik \
+    && chown -R maputnik:maputnik /app
+
+USER maputnik
+
+EXPOSE 8000
+
+HEALTHCHECK CMD curl -f http://localhost:8000/ || exit 1
+
+ENTRYPOINT ["/app/maputnik"]
+>>>>>>> 2a4e076eadb0314a2022db8f0d98efe7c0da3fb7
