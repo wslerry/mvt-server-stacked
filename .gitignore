@@ -27,6 +27,9 @@ backup*
 tilemaker/pbf/*.*
 !tilemaker/pbf/.gitkeep
 
+datastore/*
+!datastore/.gitkeep
+
 index.html
 
 build.yml
