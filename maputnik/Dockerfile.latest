@@ -1,59 +1,31 @@
-<<<<<<< HEAD
-# ==================== BUILDER ====================
-FROM node:slim AS builder
-WORKDIR /app
-
-# Install necessary tools and Node.js
-RUN apt-get update \
-    && apt-get install -y curl git ca-certificates \
-    && apt-get autoremove --yes \
-    && rm -rf /var/lib/apt/lists/* \
-    && git clone https://github.com/maplibre/maputnik.git . \
-    && npm ci \
-    && npx vite build \
-    && npm prune --production
-
-# ==================== FINAL IMAGE ====================
-FROM nginx:alpine
-RUN apk add --no-cache curl
-COPY --from=builder /app/dist /usr/share/nginx/html
-USER nginx
-HEALTHCHECK CMD curl -f http://localhost/ || exit 1
-EXPOSE 80
-=======
-# ==================== BUILDER ====================
+# Build image
 FROM golang:1.23-alpine AS builder
 WORKDIR /maputnik
 
-# Install necessary build dependencies
+# Override these at build time to target a fork or a specific release tag:
+#   docker build --build-arg MAPUTNIK_VERSION=v0.6.1 ...
+#   docker build --build-arg MAPUTNIK_REPO=https://github.com/you/maputnik.git ...
+ARG MAPUTNIK_REPO=https://github.com/maplibre/maputnik.git
+ARG MAPUTNIK_VERSION=main
+
 RUN apk add --no-cache nodejs npm make git gcc g++ libc-dev
 
-# Clone maputnik repository
-ARG MAPUTNIK_TAG=main
-RUN git clone --depth 1 --branch ${MAPUTNIK_TAG} https://github.com/maplibre/maputnik.git . \
-    && npm ci \
-    && CGO_ENABLED=1 GOOS=linux npm run build-linux
+RUN git clone --depth 1 --branch ${MAPUTNIK_VERSION} ${MAPUTNIK_REPO} .
 
-# ==================== FINAL IMAGE ====================
+RUN npm ci
+RUN CGO_ENABLED=1 GOOS=linux npm run build-linux
+
+# Final
 FROM alpine:latest
 WORKDIR /app
 
-# Install runtime dependencies
-RUN apk add --no-cache ca-certificates curl
+RUN apk add --no-cache ca-certificates
 
-# Copy the built binary
-COPY --from=builder /maputnik/desktop/bin/linux/maputnik ./maputnik
-
-# Create a non-root user
-RUN addgroup -g 1001 maputnik \
-    && adduser -D -u 1001 -G maputnik maputnik \
-    && chown -R maputnik:maputnik /app
-
-USER maputnik
+COPY --from=builder /maputnik/desktop/bin/linux/maputnik ./
 
 EXPOSE 8000
 
-HEALTHCHECK CMD curl -f http://localhost:8000/ || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD wget -qO- http://localhost:8000/ || exit 1
 
 ENTRYPOINT ["/app/maputnik"]
->>>>>>> 2a4e076eadb0314a2022db8f0d98efe7c0da3fb7

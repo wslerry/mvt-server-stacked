@@ -243,12 +243,12 @@ services:
       context: ./maputnik
       dockerfile: Dockerfile.latest
       args:
-        MAPUTNIK_TAG: main
+        MAPUTNIK_VERSION: main
     image: lerryws/maputnik:secure-latest
     container_name: maputnik-latest
     user: "${UID:-101}:${GID:-101}"
     ports:
-      - "8082:80"
+      - "8082:8000"
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
