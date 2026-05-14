@@ -9,7 +9,9 @@ osm_checker() {
         echo "$mys_osm not found, downloading..."
         # curl -L https://download.geofabrik.de/asia/malaysia-singapore-brunei-latest.osm.pbf \ 
         #     --output /data/input/malaysia-singapore-brunei-latest.osm.pbf
-        wget -O /data/input/malaysia-singapore-brunei-latest.osm.pbf https://download.geofabrik.de/asia/malaysia-singapore-brunei-latest.osm.pbf
+        wget --tries=5 --waitretry=30 --retry-connrefused \
+            -O /data/input/malaysia-singapore-brunei-latest.osm.pbf \
+            https://download.geofabrik.de/asia/malaysia-singapore-brunei-latest.osm.pbf
         if [ $? -ne 0 ]; then
             echo "Failed to download $mys_osm"
             exit 1
@@ -22,7 +24,9 @@ osm_checker() {
         echo "$ind_osm not found, downloading..."
         # curl -L https://download.geofabrik.de/asia/indonesia-latest.osm.pbf \ 
         #     --output /data/input/indonesia-latest.osm.pbf
-        wget -O /data/input/indonesia-latest.osm.pbf https://download.geofabrik.de/asia/indonesia-latest.osm.pbf
+        wget --tries=5 --waitretry=30 --retry-connrefused \
+            -O /data/input/indonesia-latest.osm.pbf \
+            https://download.geofabrik.de/asia/indonesia-latest.osm.pbf
         if [ $? -ne 0 ]; then
             echo "Failed to download $ind_osm"
             exit 1
