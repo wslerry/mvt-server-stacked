@@ -30,6 +30,12 @@ Technology stacks:
 
 These are one-shot pipeline tasks. Use `run --rm` so the container is automatically removed after it finishes.
 
+Before the first run, create the host directories so Docker doesn't create them as root:
+
+```bash
+mkdir -p data/pbf tilemaker/pbf
+```
+
 - Clip and merge OSM data for Borneo Island:
 
     ```bash

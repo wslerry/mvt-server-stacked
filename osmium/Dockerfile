@@ -13,7 +13,7 @@ RUN set -eux; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*; \
     mkdir -p /data/input /data/output; \
-    chown ${UID}:${GID} /data/output
+    chown ${UID}:${GID} /data/input /data/output
 
 WORKDIR /opt/osmium
 COPY --chown=${UID}:${GID} extraction ./extraction
